@@ -3,8 +3,7 @@ import { ClientTypeSelector } from "./client-type-selector";
 import { WelcomeStep, type WelcomeData } from "./welcome-step";
 import { PlanSelector } from "./plan-selector";
 import { ConfirmationStep } from "./confirmation-step";
-import { CheckCircle2, Moon, Sun } from "lucide-react";
-import { useDarkMode } from "../hooks/useDarkMode";
+import { CheckCircle2 } from "lucide-react";
 import { initAffiliate } from "../../../services/api";
 
 export type ClientType = "natural" | "juridica" | "firma_personal" | "ente_gubernamental" | "emprendedor" | null;
@@ -16,7 +15,6 @@ interface AffiliationWizardProps {
 }
 
 export function AffiliationWizard({ onComplete }: AffiliationWizardProps) {
-    const { isDarkMode, toggleDarkMode } = useDarkMode();
     const [currentStep, setCurrentStep] = useState(1);
     const [clientType, setClientType] = useState<ClientType>(null);
     const [welcomeData, setWelcomeData] = useState<WelcomeData | null>(null);
@@ -116,15 +114,7 @@ export function AffiliationWizard({ onComplete }: AffiliationWizardProps) {
 
     return (
         <div className="max-w-4xl mx-auto">
-            {/* Header con Toggle Dark Mode */}
-            <div className="mb-8 flex items-center justify-end">
-                <button
-                    onClick={toggleDarkMode}
-                    className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all shadow-md hover:shadow-lg"
-                >
-                    {isDarkMode ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-gray-700" />}
-                </button>
-            </div>
+            {/* Header removido para centralizar en App.tsx */}
 
             {/* Progress Steps */}
             <div className="mb-12 w-full px-4">

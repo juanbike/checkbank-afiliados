@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
-import { CheckCircle2, Moon, Sun, Lock, User, ShieldCheck } from "lucide-react";
-import { useDarkMode } from "../hooks/useDarkMode";
+import { useState } from "react";
+import { CheckCircle2, Lock, User, ShieldCheck } from "lucide-react";
 import { ClientDataForm } from "./client-data-form";
 import { CommerceInfoForm } from "./commerce-info-form";
 import { activateAffiliate, loginUser } from "../../../services/api";
@@ -8,23 +7,22 @@ import type { ClientType, ClientData, CommerceData } from "./subscription-wizard
 
 interface ActivationWizardProps {
     initialAffiliateId?: string | null;
-    onComplete: () => void;
 }
 
-export function ActivationWizard({ initialAffiliateId, onComplete }: ActivationWizardProps) {
-    const { isDarkMode, toggleDarkMode } = useDarkMode();
+export function ActivationWizard({ initialAffiliateId }: ActivationWizardProps) {
     const [currentStep, setCurrentStep] = useState(1);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState<any>(null);
-    const [affiliateId, setAffiliateId] = useState<string | null>(initialAffiliateId || null);
+    const [loading, setLoading] = useState(false);
 
-    const [clientType, setClientType] = useState<ClientType>("natural"); // Default or fetched
+    // Store variables instead of states if we never set them
+    const affiliateId = initialAffiliateId;
+    const clientType: ClientType = "natural"; // Default or derived later
     const [clientData, setClientData] = useState<ClientData>({});
     const [commerceData, setCommerceData] = useState<CommerceData>({});
 
     const [loginEmail, setLoginEmail] = useState("");
     const [loginPassword, setLoginPassword] = useState("");
-    const [loading, setLoading] = useState(false);
 
     const steps = [
         { number: 1, title: "Inicio de Sesión", icon: <Lock className="w-6 h-6" /> },
@@ -109,11 +107,7 @@ export function ActivationWizard({ initialAffiliateId, onComplete }: ActivationW
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="mb-8 flex items-center justify-end">
-                <button onClick={toggleDarkMode} className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700 shadow-md">
-                    {isDarkMode ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-gray-700" />}
-                </button>
-            </div>
+            {/* Header removido para unificar modo oscuro en App.tsx */}
 
             <div className="mb-12">
                 <div className="flex justify-between items-center px-4">

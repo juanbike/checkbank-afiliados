@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import pool from '../config/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { logError, logActivity } from '../utils/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
 
 export const login = async (req: Request, res: Response) => {
     const { username, password } = req.body;
+    console.log(`Intentando login para: [${username}] con password de longitud: ${password?.length}`);
 
     try {
         // Obtenemos el usuario y su información de rol básica
@@ -77,8 +79,16 @@ export const login = async (req: Request, res: Response) => {
             token
         });
 
-    } catch (error) {
-        console.error('Error en login:', error);
+        // Log the activity
+        await logActivity({
+            userId: user.id,
+            action: 'LOGIN',
+            details: { username: user.username },
+            ipAddress: req.ip
+        });
+
+    } catch (error: any) {
+        logError(error, 'Login Process');
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 };

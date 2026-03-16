@@ -1,0 +1,80 @@
+[6/3/2026, 4:38:13 p. m.] [initAffiliate] error: la sintaxis de entrada no es válida para el enum plan_type_enum: «Pendiente»
+    at C:\afiliados\backend\node_modules\pg\lib\client.js:624:17
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+--------------------------------------------------------------------------------
+[6/3/2026, 4:38:13 p. m.] [FRONTEND: api:initAffiliate] {"message":"Error al iniciar la afiliación","stack":"Error: Error al iniciar la afiliación\n    at initAffiliate (http://localhost:5173/src/services/api.ts?t=1772829072506:12:13)\n    at async handleWelcomeSubmit (http://localhost:5173/src/components/afiliados/components/subscription-wizard.tsx?t=1772829072506:73:7)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:38:37 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:38:47 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:38:57 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:47 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:49 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:49 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:50 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:50 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:51 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:51 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:51 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:51 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:54 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:54 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:55 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:55 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:55 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:55 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:56 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:56 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:57 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:39:57 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:41:02 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:41:40 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:42:10 p. m.] [FRONTEND: api:loginUser] {"message":"Usuario o contraseña incorrectos","stack":"Error: Usuario o contraseña incorrectos\n    at loginUser (http://localhost:5173/src/services/api.ts:91:15)\n    at async handleSubmit (http://localhost:5173/src/components/auth/LoginForm.tsx:17:24)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:53:02 p. m.] [getAffiliateById] error: la sintaxis de entrada no es válida para tipo uuid: «profile»
+    at C:\afiliados\backend\node_modules\pg-pool\index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+--------------------------------------------------------------------------------
+[12/3/2026, 3:53:02 p. m.] [FRONTEND: api:getAffiliateProfile] {"message":"Error al obtener perfil","stack":"Error: Error al obtener perfil\n    at getAffiliateProfile (http://localhost:5173/src/services/api.ts?t=1773344762961:72:29)\n    at async fetchProfile (http://localhost:5173/src/components/afiliados/components/AffiliateDashboard.tsx?t=1773344762961:28:21)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:53:02 p. m.] [getAffiliateById] error: la sintaxis de entrada no es válida para tipo uuid: «profile»
+    at C:\afiliados\backend\node_modules\pg-pool\index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+--------------------------------------------------------------------------------
+[12/3/2026, 3:53:02 p. m.] [FRONTEND: api:getAffiliateProfile] {"message":"Error al obtener perfil","stack":"Error: Error al obtener perfil\n    at getAffiliateProfile (http://localhost:5173/src/services/api.ts?t=1773344762961:72:29)\n    at async fetchProfile (http://localhost:5173/src/components/afiliados/components/AffiliateDashboard.tsx?t=1773344762961:28:21)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:53:22 p. m.] [getAffiliateById] error: la sintaxis de entrada no es válida para tipo uuid: «profile»
+    at C:\afiliados\backend\node_modules\pg-pool\index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+--------------------------------------------------------------------------------
+[12/3/2026, 3:53:22 p. m.] [FRONTEND: api:getAffiliateProfile] {"message":"Error al obtener perfil","stack":"Error: Error al obtener perfil\n    at getAffiliateProfile (http://localhost:5173/src/services/api.ts?t=1773344762961:72:29)\n    at async fetchProfile (http://localhost:5173/src/components/afiliados/components/AffiliateDashboard.tsx?t=1773344762961:28:21)"}
+--------------------------------------------------------------------------------
+[12/3/2026, 3:53:22 p. m.] [getAffiliateById] error: la sintaxis de entrada no es válida para tipo uuid: «profile»
+    at C:\afiliados\backend\node_modules\pg-pool\index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+--------------------------------------------------------------------------------
+[12/3/2026, 3:53:22 p. m.] [FRONTEND: api:getAffiliateProfile] {"message":"Error al obtener perfil","stack":"Error: Error al obtener perfil\n    at getAffiliateProfile (http://localhost:5173/src/services/api.ts?t=1773344762961:72:29)\n    at async fetchProfile (http://localhost:5173/src/components/afiliados/components/AffiliateDashboard.tsx?t=1773344762961:28:21)"}
+--------------------------------------------------------------------------------

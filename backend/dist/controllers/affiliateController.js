@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAffiliates = exports.activateAffiliate = exports.initAffiliate = void 0;
+exports.deleteAffiliate = exports.updateAffiliate = exports.getAffiliateById = exports.getProfile = exports.updatePlan = exports.getAffiliates = exports.activateAffiliate = exports.initAffiliate = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const logger_1 = require("../utils/logger");
 const initAffiliate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const data = req.body;
     const client = yield db_1.default.connect();
@@ -23,9 +24,10 @@ const initAffiliate = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         // 1. Insert into affiliates (initial record)
         const affiliateRes = yield client.query('INSERT INTO affiliates (client_type, plan, payment_period, status) VALUES ($1, $2, $3, $4) RETURNING id', [data.clientType, data.selectedPlan, data.selectedPeriod, 'pending']);
         const affiliateId = affiliateRes.rows[0].id;
-        // 2. Create User for Login
+        // 2. Create User for Login and link to affiliate
         const hashedPassword = yield bcryptjs_1.default.hash(data.password, 10);
-        yield client.query('INSERT INTO auth_users (username, password, full_name, role, branch) VALUES ($1, $2, $3, $4, $5)', [data.email, hashedPassword, data.fullName || data.email, 'affiliate', 'Principal']);
+        yield client.query(`INSERT INTO auth_users (username, password, full_name, branch, affiliate_id, role_id) 
+             VALUES ($1, $2, $3, $4, $5, (SELECT id FROM roles WHERE slug = 'affiliate'))`, [data.email, hashedPassword, data.fullName || data.email, 'Principal', affiliateId]);
         // 3. Link affiliate to auth (optional, but keep it in affiliate_auth if we want to separate)
         // For now, we use email as username in auth_users.
         // 4. Insert Payment
@@ -43,6 +45,14 @@ const initAffiliate = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             })
         ]);
         yield client.query('COMMIT');
+        // Log the activity
+        yield (0, logger_1.logActivity)({
+            action: 'INIT_AFFILIATION',
+            entityType: 'affiliate',
+            entityId: affiliateId,
+            details: { email: data.email, plan: data.selectedPlan },
+            ipAddress: req.ip
+        });
         res.status(201).json({
             message: 'Afiliación iniciada. Por favor procede a la activación.',
             affiliateId,
@@ -51,7 +61,7 @@ const initAffiliate = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
     catch (error) {
         yield client.query('ROLLBACK');
-        console.error('Error in initAffiliate:', error);
+        (0, logger_1.logError)(error, 'initAffiliate');
         if (error.code === '23505') {
             res.status(400).json({
                 message: 'Error de duplicado: El correo o la referencia ya existen.',
@@ -157,11 +167,19 @@ const activateAffiliate = (req, res) => __awaiter(void 0, void 0, void 0, functi
         // 3. Update Status
         yield client.query('UPDATE affiliates SET status = $1, updated_at = NOW() WHERE id = $2', ['active', affiliateId]);
         yield client.query('COMMIT');
+        // Log the activity
+        yield (0, logger_1.logActivity)({
+            action: 'ACTIVATE_AFFILIATE',
+            entityType: 'affiliate',
+            entityId: affiliateId,
+            details: { type: clientData.clientType },
+            ipAddress: req.ip
+        });
         res.status(200).json({ message: 'Afiliación activada exitosamente' });
     }
     catch (error) {
         yield client.query('ROLLBACK');
-        console.error('Error in activateAffiliate:', error);
+        (0, logger_1.logError)(error, 'activateAffiliate');
         res.status(500).json({ message: 'Error al activar la afiliación' });
     }
     finally {
@@ -191,3 +209,148 @@ const getAffiliates = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getAffiliates = getAffiliates;
+const updatePlan = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { plan, period } = req.body;
+    const affiliateId = req.user.id; // Or mapping from user to affiliate
+    try {
+        // Find affiliate ID directly from auth_users
+        const userRes = yield db_1.default.query('SELECT affiliate_id FROM auth_users WHERE id = $1', [req.user.id]);
+        if (userRes.rows.length === 0)
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        const realAffiliateId = userRes.rows[0].affiliate_id;
+        if (!realAffiliateId) {
+            return res.status(404).json({ message: 'Afiliado no vinculado a este usuario' });
+        }
+        yield db_1.default.query('UPDATE affiliates SET plan = $1, payment_period = $2, updated_at = NOW() WHERE id = $3', [plan, period, realAffiliateId]);
+        res.json({ message: 'Plan actualizado exitosamente' });
+    }
+    catch (error) {
+        (0, logger_1.logError)(error, 'updatePlan');
+        res.status(500).json({ message: 'Error al actualizar el plan' });
+    }
+});
+exports.updatePlan = updatePlan;
+const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userRes = yield db_1.default.query('SELECT username, full_name, role, branch, affiliate_id FROM auth_users WHERE id = $1', [req.user.id]);
+        if (userRes.rows.length === 0)
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        const user = userRes.rows[0];
+        // Find affiliate info using direct link
+        const affiliateRes = yield db_1.default.query(`
+            SELECT a.*, 
+                   COALESCE(n.nombres || ' ' || n.apellidos, j.razon_social, f.nombre_firma, g.nombre_institucion, e.nombres || ' ' || e.apellidos) as display_name,
+                   COALESCE(n.correo_electronico, j.correo_corporativo, f.correo_firma, g.correo_contacto, e.correo_emprendedor) as contact_email
+            FROM affiliates a
+            LEFT JOIN affiliate_natural_profiles n ON a.id = n.affiliate_id
+            LEFT JOIN affiliate_juridica_profiles j ON a.id = j.affiliate_id
+            LEFT JOIN affiliate_firma_profiles f ON a.id = f.affiliate_id
+            LEFT JOIN affiliate_gob_profiles g ON a.id = g.affiliate_id
+            LEFT JOIN affiliate_emprendedor_profiles e ON a.id = e.affiliate_id
+            WHERE a.id = $1
+        `, [user.affiliate_id]);
+        const affiliate = affiliateRes.rows[0];
+        // Fetch latest payment
+        let latestPayment = null;
+        if (user.affiliate_id) {
+            const paymentRes = yield db_1.default.query('SELECT * FROM affiliate_payments WHERE affiliate_id = $1 ORDER BY fecha_pago DESC LIMIT 1', [user.affiliate_id]);
+            latestPayment = paymentRes.rows[0] || null;
+        }
+        res.json({
+            user,
+            affiliate: affiliate || null,
+            latestPayment
+        });
+    }
+    catch (error) {
+        (0, logger_1.logError)(error, 'getProfile');
+        res.status(500).json({ message: 'Error al obtener el perfil' });
+    }
+});
+exports.getProfile = getProfile;
+const getAffiliateById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const result = yield db_1.default.query(`
+            SELECT a.*, 
+                   COALESCE(n.nombres || ' ' || n.apellidos, j.razon_social, f.nombre_firma, g.nombre_institucion, e.nombres || ' ' || e.apellidos) as display_name,
+                   COALESCE(n.correo_electronico, j.correo_corporativo, f.correo_firma, g.correo_contacto, e.correo_emprendedor) as email
+            FROM affiliates a
+            LEFT JOIN affiliate_natural_profiles n ON a.id = n.affiliate_id
+            LEFT JOIN affiliate_juridica_profiles j ON a.id = j.affiliate_id
+            LEFT JOIN affiliate_firma_profiles f ON a.id = f.affiliate_id
+            LEFT JOIN affiliate_gob_profiles g ON a.id = g.affiliate_id
+            LEFT JOIN affiliate_emprendedor_profiles e ON a.id = e.affiliate_id
+            WHERE a.id = $1
+        `, [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Afiliado no encontrado' });
+        }
+        res.json(result.rows[0]);
+    }
+    catch (error) {
+        (0, logger_1.logError)(error, 'getAffiliateById');
+        res.status(500).json({ message: 'Error al obtener el afiliado' });
+    }
+});
+exports.getAffiliateById = getAffiliateById;
+const updateAffiliate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { id } = req.params;
+    const { status, plan, payment_period } = req.body;
+    try {
+        yield db_1.default.query('UPDATE affiliates SET status = $1, plan = $2, payment_period = $3, updated_at = NOW() WHERE id = $4', [status, plan, payment_period, id]);
+        // Log the activity
+        yield (0, logger_1.logActivity)({
+            userId: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
+            action: 'UPDATE_AFFILIATE',
+            entityType: 'affiliate',
+            entityId: id,
+            details: { status, plan, payment_period },
+            ipAddress: req.ip
+        });
+        res.json({ message: 'Afiliado actualizado exitosamente' });
+    }
+    catch (error) {
+        (0, logger_1.logError)(error, 'updateAffiliate');
+        res.status(500).json({ message: 'Error al actualizar el afiliado' });
+    }
+});
+exports.updateAffiliate = updateAffiliate;
+const deleteAffiliate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { id } = req.params;
+    const client = yield db_1.default.connect();
+    try {
+        yield client.query('BEGIN');
+        // Delete from related tables first
+        yield client.query('DELETE FROM affiliate_natural_profiles WHERE affiliate_id = $1', [id]);
+        yield client.query('DELETE FROM affiliate_juridica_profiles WHERE affiliate_id = $1', [id]);
+        yield client.query('DELETE FROM affiliate_firma_profiles WHERE affiliate_id = $1', [id]);
+        yield client.query('DELETE FROM affiliate_gob_profiles WHERE affiliate_id = $1', [id]);
+        yield client.query('DELETE FROM affiliate_emprendedor_profiles WHERE affiliate_id = $1', [id]);
+        yield client.query('DELETE FROM affiliate_commerce_data WHERE affiliate_id = $1', [id]);
+        yield client.query('DELETE FROM affiliate_payments WHERE affiliate_id = $1', [id]);
+        yield client.query('DELETE FROM auth_users WHERE affiliate_id = $1', [id]);
+        yield client.query('DELETE FROM affiliates WHERE id = $1', [id]);
+        yield client.query('COMMIT');
+        // Log the activity
+        yield (0, logger_1.logActivity)({
+            userId: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
+            action: 'DELETE_AFFILIATE',
+            entityType: 'affiliate',
+            entityId: id,
+            ipAddress: req.ip
+        });
+        res.json({ message: 'Afiliado eliminado exitosamente' });
+    }
+    catch (error) {
+        yield client.query('ROLLBACK');
+        (0, logger_1.logError)(error, 'deleteAffiliate');
+        res.status(500).json({ message: 'Error al eliminar el afiliado' });
+    }
+    finally {
+        client.release();
+    }
+});
+exports.deleteAffiliate = deleteAffiliate;

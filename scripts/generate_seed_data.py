@@ -1,65 +1,97 @@
 import os
 import random
 import string
-from datetime import datetime
+import uuid
+from datetime import datetime, date
+import psycopg2
 
-# Configuración de tipos y listas para datos aleatorios realistas
+# Configuración de base de datos
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'postgres',
+    'password': 'canela123$$',
+    'dbname': 'cb_database',
+    'port': '5432'
+}
+
+# Listas para datos aleatorios realistas
 CLIENT_TYPES = ['natural', 'juridica', 'firma_personal', 'ente_gubernamental', 'emprendedor']
-PLANS = ['Plan Emprendedor', 'Plan Profesional', 'Plan Corporativo']
-PERIODS = ['mensual', 'anual']
+PLANS = ['basico', 'estandar', 'premium']
+PERIODS = ['mensual', 'semestral', 'anual']
 STATUSES = ['active', 'pending']
-ESTADOS = ['Distrito Capital', 'Miranda', 'Carabobo', 'Zulia', 'Lara', 'Aragua']
-BANCOS = ['Banco de Venezuela', 'Banesco', 'Mercantil', 'BBVA Provincial', 'BNC']
+ESTADOS = ['Distrito Capital', 'Miranda', 'Carabobo', 'Zulia', 'Lara', 'Aragua', 'Bolívar', 'Anzoátegui']
+CIUDADES = ['Caracas', 'Valencia', 'Maracaibo', 'Barquisimeto', 'Maracay', 'Puerto La Cruz']
 
 def get_random_string(length=8):
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
 
-def generate_bulk_sql(count=40):
-    sql_lines = ["-- INSERCIÓN MASIVA DE DATOS DE PRUEBA (40 REGISTROS)", "BEGIN;"]
-    
+def generate_and_seed(count=40):
+    sql_lines = []
+    pwd_hash = '$2a$10$fV3.pY8e8Z.7.vI7.vI7.uI7.vI7.vI7.vI7.vI7.vI7.vI7.vI7'
+
+    print(f"Generando {count} registros...")
+
     for i in range(1, count + 1):
-        # 1. Datos base
+        aff_id = str(uuid.uuid4())
         client_type = random.choice(CLIENT_TYPES)
-        email = f"user{i}_{get_random_string(4)}@example.com"
-        ref_pago = f"REF{random.randint(100000, 999999)}"
+        email = f"user_{i}_{get_random_string(2)}@dummy.com"
         plan = random.choice(PLANS)
         period = random.choice(PERIODS)
         status = random.choice(STATUSES)
+        estado = random.choice(ESTADOS)
+        ciudad = random.choice(CIUDADES)
         
-        # 2. Insertar en affiliates
-        sql_lines.append(f"-- Registro {i}: {client_type.upper()}")
-        sql_lines.append(f"INSERT INTO affiliates (id, client_type, plan, payment_period, status) VALUES ({i}, '{client_type}', '{plan}', '{period}', '{status}');")
+        # 1. Base Affiliate
+        sql_lines.append(f"INSERT INTO affiliates (id, client_type, plan, payment_period, status) VALUES ('{aff_id}', '{client_type}'::client_type_enum, '{plan}'::plan_type_enum, '{period}'::payment_period_enum, '{status}'::affiliate_status_enum);")
         
-        # 3. Insertar en auth_users (password: '123456' hasheado)
-        pwd_hash = '$2a$10$8K7/6fQ5I.6H5M/TzqX.YeLia8C5iS8E6J1YhH6bX5bX5bX5bX5bX' 
-        sql_lines.append(f"INSERT INTO auth_users (username, password, full_name, role) VALUES ('{email}', '{pwd_hash}', 'Usuario de Prueba {i}', 'affiliate');")
+        # 2. Auth User
+        sql_lines.append(f"INSERT INTO auth_users (id, username, password, full_name, role, affiliate_id, role_id) VALUES ('{uuid.uuid4()}', '{email}', '{pwd_hash}', 'Prueba {i}', 'affiliate', '{aff_id}', (SELECT id FROM roles WHERE slug = 'affiliate' LIMIT 1));")
         
-        # 4. Insertar en affiliate_payments
-        monto = random.randint(10, 500)
-        sql_lines.append(f"INSERT INTO affiliate_payments (affiliate_id, metodo_pago, referencia, monto, moneda, status) VALUES ({i}, 'Transferencia', '{ref_pago}', {monto}, 'USD', 'approved');")
-        
-        # 5. Insertar Perfil según tipo (Ejemplos básicos para no saturar)
+        # 3. Specific Profiles
         if client_type == 'natural':
-            sql_lines.append(f"INSERT INTO affiliate_natural_profiles (affiliate_id, nombres, apellidos, documento_identidad, correo_electronico, estado) VALUES ({i}, 'Nombre{i}', 'Apellido{i}', 'V{random.randint(10,30)}000000', '{email}', '{random.choice(ESTADOS)}');")
+            sql_lines.append(f"""INSERT INTO affiliate_natural_profiles 
+                (affiliate_id, nombres, apellidos, documento_identidad, fecha_nacimiento, genero, profesion_ocupacion, direccion_principal, estado, ciudad, municipio, parroquia, codigo_postal, correo_electronico, telefono_movil) 
+                VALUES ('{aff_id}', 'N-{i}', 'A-{i}', 'V{random.randint(10,30)}00{i}', '1990-01-01', 'Masculino', 'Ingeniero', 'Av Libertador', '{estado}', '{ciudad}', 'Municipio {i}', 'Parroquia {i}', '1010', '{email}', '0414-0000{i}');""")
         elif client_type == 'juridica':
-            sql_lines.append(f"INSERT INTO affiliate_juridica_profiles (affiliate_id, razon_social, rif_nit, correo_corporativo, estado) VALUES ({i}, 'Empresa {i} C.A.', 'J-{random.randint(10,90)}000000', '{email}', '{random.choice(ESTADOS)}');")
+            sql_lines.append(f"""INSERT INTO affiliate_juridica_profiles 
+                (affiliate_id, razon_social, rif_nit, domicilio_fiscal, estado, ciudad, municipio, parroquia, codigo_postal, rep_nombres, rep_apellidos, rep_documento, correo_corporativo, telefono_fijo) 
+                VALUES ('{aff_id}', 'Empresa {i} CA', 'J-{random.randint(10,90)}00{i}', 'Edf Torre {i}', '{estado}', '{ciudad}', 'Municipio {i}', 'Parroquia {i}', '1010', 'Rep {i}', 'Last {i}', 'V-{i}', '{email}', '0212-0000{i}');""")
         elif client_type == 'firma_personal':
-            sql_lines.append(f"INSERT INTO affiliate_firma_profiles (affiliate_id, nombre_firma, rif_firma, correo_firma, estado) VALUES ({i}, 'Firma {i}', 'V-{random.randint(10,30)}000000', '{email}', '{random.choice(ESTADOS)}');")
+            sql_lines.append(f"""INSERT INTO affiliate_firma_profiles 
+                (affiliate_id, nombre_firma, rif_firma, nombre_titular, cedula_titular, direccion_fiscal, estado, ciudad, municipio, parroquia, codigo_postal, correo_firma, telefono_firma, actividad_comercial) 
+                VALUES ('{aff_id}', 'Firma {i}', 'V-{i}', 'Titular {i}', 'V-{i}', 'Direccion {i}', '{estado}', '{ciudad}', 'Municipio {i}', 'Parroquia {i}', '1010', '{email}', '0424-0000{i}', 'Comercio');""")
+        elif client_type == 'ente_gubernamental':
+            sql_lines.append(f"""INSERT INTO affiliate_gob_profiles 
+                (affiliate_id, nombre_institucion, rif_nit_gob, direccion_administrativa, nombre_contacto, cargo_contacto, correo_contacto, telefono_contacto, referencia_contrato) 
+                VALUES ('{aff_id}', 'Institución {i}', 'G-000{i}', 'Sede {i}', 'Contacto {i}', 'Director', '{email}', '0800-000{i}', 'CTR-{i}');""")
         elif client_type == 'emprendedor':
-            sql_lines.append(f"INSERT INTO affiliate_emprendedor_profiles (affiliate_id, nombres, nombre_proyecto, correo_emprendedor, estado) VALUES ({i}, 'Emprendedor {i}', 'Proyecto {i}', '{email}', '{random.choice(ESTADOS)}');")
-        else: # gob
-            sql_lines.append(f"INSERT INTO affiliate_gob_profiles (affiliate_id, nombre_institucion, rif_nit_gob, correo_contacto) VALUES ({i}, 'Ministerio {i}', 'G-20000000', '{email}');")
+            sql_lines.append(f"""INSERT INTO affiliate_emprendedor_profiles 
+                (affiliate_id, nombres, apellidos, cedula, nombre_proyecto, area_proyecto, direccion, estado, ciudad, municipio, parroquia, codigo_postal, correo_emprendedor, telefono_emprendedor, descripcion_proyecto) 
+                VALUES ('{aff_id}', 'Emp {i}', 'Last {i}', 'V-{i}', 'Proyecto {i}', 'Tech', 'Direccion {i}', '{estado}', '{ciudad}', 'Muni {i}', 'Parr {i}', '1010', '{email}', '0416-000{i}', 'Desc {i}');""")
 
-        # 6. Datos de comercio
-        sql_lines.append(f"INSERT INTO affiliate_commerce_data (affiliate_id, email_administrativo, estado_comercio, actividad_economica) VALUES ({i}, '{email}', '{random.choice(ESTADOS)}', 'Comercio General');")
-        sql_lines.append("") # Espacio entre registros
+        # 4. Commerce & Payments
+        sql_lines.append(f"INSERT INTO affiliate_commerce_data (affiliate_id, direccion_calle, direccion_numero, direccion_ciudad, estado_comercio, municipio_comercio, codigo_postal, telefono_comercio, email_administrativo, actividad_economica) VALUES ('{aff_id}', 'Calle {i}', 'No {i}', '{ciudad}', '{estado}', 'Municipio {i}', '1010', '0212-000{i}', '{email}', 'Retail');")
+        sql_lines.append(f"INSERT INTO affiliate_payments (affiliate_id, metodo_pago, referencia, fecha_pago, monto, moneda, status) VALUES ('{aff_id}', 'Transferencia', 'TX-{i}{get_random_string(2).upper()}', NOW(), {random.randint(50,1000)}, 'USD', 'approved');")
 
-    sql_lines.append("COMMIT;")
-    
-    output_path = r"c:\afiliados\seed_data_40.sql"
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(sql_lines))
-    print(f"✅ Archivo SQL generado con éxito en: {output_path}")
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)
+        cur = conn.cursor()
+        cur.execute("BEGIN;")
+        for line in sql_lines:
+            try:
+                cur.execute(line)
+            except Exception as line_e:
+                print(f"❌ Error en SQL: {line_e}")
+                print(f"DEBUG: {line}")
+                conn.rollback()
+                return
+        conn.commit()
+        print(f"✅ Se han generado e insertado {count} registros exitosamente.")
+        
+    except Exception as e:
+        print(f"❌ Error general: {e}")
+    finally:
+        if conn: conn.close()
 
 if __name__ == "__main__":
-    generate_bulk_sql(40)
+    generate_and_seed(40)
