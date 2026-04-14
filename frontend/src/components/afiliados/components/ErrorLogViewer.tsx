@@ -127,37 +127,65 @@ export function ErrorLogViewer() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-gray-800 font-medium">
-                {filteredLogs.map((log, index) => (
-                  <tr key={index} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
-                    <td className="px-8 py-5 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <Clock className="w-4 h-4 text-gray-300" />
-                        <span className="text-sm text-gray-600 dark:text-gray-400 font-mono">{log.timestamp}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <span className="flex items-center gap-2 px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold border border-red-100 dark:border-red-900/30 uppercase tracking-tighter">
-                        <Terminal className="w-3 h-3" />
-                        {log.context}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div 
-                        className={`text-sm text-gray-800 dark:text-gray-200 font-mono truncate max-w-lg ${expandedId === index ? 'whitespace-pre-wrap truncate-none' : ''}`}
-                      >
-                        {log.message}
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <button 
-                        onClick={() => setExpandedId(expandedId === index ? null : index)}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
-                      >
-                        {expandedId === index ? <ChevronDown className="w-5 h-5 text-gray-400" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {filteredLogs.map((log, index) => {
+                  const isJson = log.message.trim().startsWith('{') || log.message.trim().startsWith('[');
+                  let formattedMessage = log.message;
+                  
+                  if (isJson) {
+                    try {
+                      formattedMessage = JSON.stringify(JSON.parse(log.message), null, 2);
+                    } catch (e) {
+                      // Silently keep original if parsing fails
+                    }
+                  }
+
+                  return (
+                    <tr key={index} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                      <td className="px-8 py-5 whitespace-nowrap align-top">
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-4 h-4 text-gray-300" />
+                          <span className="text-sm text-gray-600 dark:text-gray-400 font-mono">{log.timestamp}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 align-top">
+                        <span className="flex items-center gap-2 px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold border border-red-100 dark:border-red-900/30 uppercase tracking-tighter w-fit">
+                          <Terminal className="w-3 h-3" />
+                          {log.context}
+                        </span>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div 
+                          className={`text-sm text-gray-800 dark:text-gray-200 font-mono ${expandedId === index ? 'whitespace-pre bg-gray-50 dark:bg-black/20 p-4 rounded-xl border border-gray-100 dark:border-gray-800 overflow-x-auto max-w-2xl' : 'line-clamp-2 max-w-lg'}`}
+                        >
+                          {formattedMessage}
+                        </div>
+                        {isJson && expandedId !== index && (
+                          <span className="text-[10px] text-indigo-500 font-bold mt-1 block uppercase">Contenido JSON disponible</span>
+                        )}
+                      </td>
+                      <td className="px-8 py-5 text-right align-top">
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(log.message);
+                              alert("Copiado al portapapeles");
+                            }}
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all text-gray-400 hover:text-indigo-600"
+                            title="Copiar mensaje"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                          </button>
+                          <button 
+                            onClick={() => setExpandedId(expandedId === index ? null : index)}
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                          >
+                            {expandedId === index ? <ChevronDown className="w-5 h-5 text-gray-400" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

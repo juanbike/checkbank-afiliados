@@ -25,7 +25,7 @@ if (!fs_1.default.existsSync(logDir)) {
 const logError = (error, context = 'General') => {
     const timestamp = new Date().toLocaleString();
     const errorMessage = error instanceof Error ? error.stack || error.message : JSON.stringify(error);
-    const logEntry = `[${timestamp}] [${context}] ${errorMessage}\n` + '-'.repeat(80) + '\n';
+    const logEntry = `[${timestamp}] [${context}]\n${errorMessage}\n` + '-'.repeat(80) + '\n';
     console.error(`Logging error: ${error.message || error}`);
     fs_1.default.appendFileSync(logFilePath, logEntry, 'utf8');
 };

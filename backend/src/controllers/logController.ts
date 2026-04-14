@@ -33,13 +33,17 @@ export const getErrorLogs = async (req: Request, res: Response) => {
         // Convert to objects
         const parsed = entries.reverse().slice(0, 100).map(entry => {
             const lines = entry.trim().split('\n');
-            const header = lines[0] || '';
-            const match = header.match(/^\[(.*?)\] \[(.*?)\]/);
+            const headerLine = lines[0] || '';
+            const match = headerLine.match(/^\[(.*?)\] \[(.*?)\]\s*(.*)/);
             
+            const messageFromHeader = match ? match[3] : '';
+            const restOfMessage = lines.slice(1).join('\n').trim();
+            const fullMessage = (messageFromHeader + (messageFromHeader && restOfMessage ? '\n' : '') + restOfMessage).trim() || headerLine;
+
             return {
                 timestamp: match ? match[1] : 'N/A',
                 context: match ? match[2] : 'General',
-                message: lines.slice(1).join('\n').trim() || lines[0]
+                message: fullMessage
             };
         });
 
